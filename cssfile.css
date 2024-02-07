@@ -1,0 +1,89 @@
+import csv
+import os
+
+EVENTS_FILE = "events.csv"
+GITHUB_REPO_URL = "https://github.com/your_username/your_repo"
+
+def load_events():
+    events = []
+    if os.path.exists(EVENTS_FILE):
+        with open(EVENTS_FILE, 'r', newline='') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                events.append(row)
+    return events
+
+def save_events(events):
+    with open(EVENTS_FILE, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(events)
+
+def add_event(event_name, event_date):
+    events = load_events()
+    events.append([event_name, event_date])
+    save_events(events)
+    print("Event added successfully!")
+
+def display_events():
+    events = load_events()
+    if events:
+        print("Events:")
+        for event in events:
+            print(f"{event[0]} - {event[1]}")
+    else:
+        print("No events found.")
+
+def delete_event(event_index):
+    events = load_events()
+    if event_index >= len(events) or event_index < 0:
+        print("Invalid event index.")
+        return
+    del events[event_index]
+    save_events(events)
+    print("Event deleted successfully!")
+
+def sync_with_github():
+    os.system(f"git add {EVENTS_FILE}")
+    os.system(f"git commit -m 'Updated events'")
+    os.system("git push")
+
+def create_events_file():
+    with open(EVENTS_FILE, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Event Name", "Event Date"])
+    print(f"Events file created: {EVENTS_FILE}")
+
+def main():
+    if not os.path.exists(EVENTS_FILE):
+        create_events_file()
+
+    while True:
+        print("\nEvent Tracker Menu:")
+        print("1. Add Event")
+        print("2. Display Events")
+        print("3. Delete Event")
+        print("4. Sync with GitHub")
+        print("5. Exit")
+
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            event_name = input("Enter event name: ")
+            event_date = input("Enter event date: ")
+            add_event(event_name, event_date)
+        elif choice == '2':
+            display_events()
+        elif choice == '3':
+            event_index = int(input("Enter the index of the event to delete: "))
+            delete_event(event_index)
+        elif choice == '4':
+            sync_with_github()
+            print(f"Events synced with GitHub. View them at: {GITHUB_REPO_URL}")
+        elif choice == '5':
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
